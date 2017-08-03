@@ -1,0 +1,68 @@
+#include "UnityCG.cginc"
+#include "object.cg"
+
+struct Ray
+{
+    float3  pos;
+    float3  dir;
+    int     type;
+};
+int rTypeDiffuse = 1,rTypeShadow = 2, rTypeReflection=3,rTypeTransparency = 4;
+
+
+class Camera
+{
+    void init(  float3 lookfrom,float3 lookat,float3 vup, 
+                float v_angle,float aspect)
+    {
+        pos = lookfrom;
+
+        w = normalize(lookfrom - lookat);
+        u = normalize(cross(vup,w));
+        v = cross(w,u);
+
+        float PI = 3.14;
+        float theta  = v_angle * PI /180;
+        float half_height = tan(theta /2 );
+        float half_width  = aspect * half_height;
+
+        corner = pos - half_width * u - half_height * v;
+        horizontal = 2 * half_width * u;
+        vertical = 2* half_width *v;
+    }
+
+    Ray getRay(float s,float t)
+    {
+        Ray r;
+        r.pos = pos;
+        r.dir = corner + s*horizontal + t*vertical - pos;
+        r.type = rTypeDiffuse;
+
+        return r;
+    }   
+
+    float3  pos;
+    float3  u,v,w;
+
+    float3  corner,horizontal,vertical;
+} cam;
+
+
+
+
+struct Material
+{
+    float3  amb;    // ambient
+    float3  dif;    // diffuse
+    float3  spc;    // specular
+    float3  ems;    // emission
+};
+
+
+
+
+fixed3 rayTrace(Ray ray)
+{
+    return ray.dir;
+}
+
